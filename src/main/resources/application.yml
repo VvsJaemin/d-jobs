@@ -1,0 +1,51 @@
+spring:
+  datasource:
+    url: jdbc:log4jdbc:mysql://localhost:3306/djobs?serverTimezone=Asia/Seoul&characterEncoding=UTF-8&autoReconnection=true
+    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+    username: root
+    password: 12345678
+  jpa:
+    open-in-view: false
+    generate-ddl: true
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        envers:
+          audit_table_suffix: _DJOBS
+    servlet:
+      multipart:
+        enabled: true
+        location: C:\update
+        max-request-size: 100MB
+        max-file-size: 100MB
+server:
+  port: 8080
+logging:
+  file:
+    path: /Users/haesoljang/desktop/toylog
+    max-size: 500MB
+    max-history: 10
+  level:
+    com.api.djobs: info
+
+
+# HS512 ????? ??? ??? ??? 512bit, ? 64byte ??? secret key? ???? ??.
+# Secret ?? ?? ???? Base64 ? ???? ? ?? (?? ???? ???? ??? ??? ??)
+# $ echo 'spring-boot-security-jwt-tutorial-jiwoon-spring-boot-security-jwt-tutorial' | base64
+jwt:
+  secretKey: c3ByaW5nLWJvb3Qtc2VjdXJpdHktand0LXR1dG9yaWFsLWppd29vbi1zcHJpbmctYm9vdC1zZWN1cml0eS1qd3QtdHV0b3JpYWwK
+  refreshKey: c3ByaeW5nLWJvb3Qtc2VjdXJpdHktand0LXR1dG9yaWFsLWppd29vbi1zcHJpbmctYm9vdC1zZWN1cml0eS1qd3QtdHV0b3JpYWwK
+#bora:
+#  upload:
+#    path: C:\upload
+#
+#oauth:
+#  granttype: authorization_code
+#  clientid: 5501273f1cc12271bbecc0183e5c77f4
+#  redirecturi: http://localhost:8080/oauth/kakao
+#  code: GhhXcHaLH0ESJgUvjYGf8bAtz9A6pLDOitRmxSIsv9wgnVWw1hRWNHdiZnHQOmK-vnn-Two9dNsAAAF-XJlP7Q
+#  clientsecret: nfSzoJ9ny0CxHr3z0qFZzSxCBvjlENF8
+#  headervalue: application/x-www-form-urlencoded;charset=utf-8
