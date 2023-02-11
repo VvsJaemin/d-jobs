@@ -1,5 +1,6 @@
 package com.api.djobs.jwt.provider;
 
+import com.api.djobs.oauth.domain.AuthToken;
 import com.api.djobs.user.dto.TokenDto;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -36,18 +37,18 @@ public class TokenProvider {
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
-//    public AuthToken createAuthToken(String id, Date expiry) {
-//        return new AuthToken(id, expiry, key);
-//    }
-//
-//    public AuthToken createAuthToken(String id, String role, Date expiry) {
-//        return new AuthToken(id, role, expiry, key);
-//    }
-//
-//    // String -> token
-//    public AuthToken convertAuthToken(String token) {
-//        return new AuthToken(token, key);
-//    }
+    public AuthToken createAuthToken(String id, Date expiry) {
+        return new AuthToken(id, expiry, key);
+    }
+
+    public AuthToken createAuthToken(String id, String role, Date expiry) {
+        return new AuthToken(id, role, expiry, key);
+    }
+
+    // String -> token
+    public AuthToken convertAuthToken(String token) {
+        return new AuthToken(token, key);
+    }
 
     // 권한 가져오기(로컬 로그인)
     public TokenDto generateTokenDto(Authentication authentication) {

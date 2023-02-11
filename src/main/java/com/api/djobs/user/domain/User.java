@@ -1,6 +1,7 @@
 package com.api.djobs.user.domain;
 
 import com.api.djobs.common.BaseEntity;
+import com.api.djobs.oauth.domain.ProviderType;
 import com.api.djobs.user.domain.Authority;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,5 +33,19 @@ public class User extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private Authority authority;
+
+    @Enumerated(EnumType.STRING)
+    private ProviderType providerType;
+
+    private String oauthId;
+
+    public void changeNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
 
 }

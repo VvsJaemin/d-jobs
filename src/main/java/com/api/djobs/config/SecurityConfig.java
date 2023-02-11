@@ -2,7 +2,13 @@ package com.api.djobs.config;
 
 import com.api.djobs.jwt.exception.CustomAuthenticationEntryPoint;
 import com.api.djobs.jwt.filter.JwtFilter;
+import com.api.djobs.jwt.handler.JwtAccessDeniedHandler;
 import com.api.djobs.jwt.provider.TokenProvider;
+import com.api.djobs.oauth.AppProperties;
+import com.api.djobs.oauth.handler.OAuth2AuthenticationFailureHandler;
+import com.api.djobs.oauth.handler.OAuth2AuthenticationSuccessHandler;
+import com.api.djobs.oauth.repository.OAuth2AuthorizationRequestBasedOnCookieRepository;
+import com.api.djobs.oauth.service.CustomOAuth2UserService;
 import com.api.djobs.user.repository.RefreshTokenRepository;
 import com.api.djobs.user.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,15 +35,17 @@ public class SecurityConfig {
 
     private final TokenProvider tokenProvider;
     private final CustomAuthenticationEntryPoint jwtAuthenticationEntryPoint;
-//    private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
+    private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
 
-//    private final CustomOAuth2UserService oAuth2UserService;
+    private final CustomOAuth2UserService oAuth2UserService;
 
     private final ObjectMapper objectMapper;
 
     private final RefreshTokenRepository refreshTokenRepository;
 
     private final UserRepository userRepository;
+
+    private final AppProperties appProperties;
 
 //    private final RedisUtil redisUtil;
 
@@ -54,33 +62,33 @@ public class SecurityConfig {
      * 인가 응답을 연계 하고 검증할 때 사용.
      * */
 
-//    @Bean
-//    public OAuth2AuthorizationRequestBasedOnCookieRepository oAuth2AuthorizationRequestBasedOnCookieRepository() {
-//        return new OAuth2AuthorizationRequestBasedOnCookieRepository();
-//    }
+    @Bean
+    public OAuth2AuthorizationRequestBasedOnCookieRepository oAuth2AuthorizationRequestBasedOnCookieRepository() {
+        return new OAuth2AuthorizationRequestBasedOnCookieRepository();
+    }
 
 
     /*
      * Oauth 인증 성공 핸들러
      * */
-//    @Bean
-//    public OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler() {
-//        return new OAuth2AuthenticationSuccessHandler(
-//                tokenProvider,
-//                appProperties,
-//                refreshTokenRepository,
-//                oAuth2AuthorizationRequestBasedOnCookieRepository(),
+    @Bean
+    public OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler() {
+        return new OAuth2AuthenticationSuccessHandler(
+                tokenProvider,
+                appProperties,
+                refreshTokenRepository,
+                oAuth2AuthorizationRequestBasedOnCookieRepository()
 //                redisUtil
-//        );
-//    }
+        );
+    }
 
     /*
      * Oauth 인증 실패 핸들러
      * */
-//    @Bean
-//    public OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler() {
-//        return new OAuth2AuthenticationFailureHandler(oAuth2AuthorizationRequestBasedOnCookieRepository());
-//    }
+    @Bean
+    public OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler() {
+        return new OAuth2AuthenticationFailureHandler(oAuth2AuthorizationRequestBasedOnCookieRepository());
+    }
     /*
      * Cors 설정
      * */
@@ -102,7 +110,7 @@ public class SecurityConfig {
                 .csrf().disable()
                 .exceptionHandling()
                 .authenticationEntryPoint(jwtAuthenticationEntryPoint)
-
+               .accessDeniedHandler(jwtAccessDeniedHandler)
                 .and()
 
                 .sessionManagement()
@@ -111,9 +119,28 @@ public class SecurityConfig {
                 .and()
                 .authorizeRequests()
                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
-                .antMatchers("/auth/**/**", "/user/**/**", "/chat/**", "/todos/**/**", "/mail/**", "/oauth/**","/like/**/**", "/edits/**","/todonoti/**/**/**","login/oauth2/**/**",
-                        "/auth/**", "/user/**/**", "/chat/**", "/todos/**/**", "/mail/**", "/todoreply/**/**", "/department", "/team", "/teams", "/upload/**/**", "/files/**/**/**").permitAll()
-                .anyRequest().authenticated().and().build();
+                .antMatchers("/auth/**/**", "/user/**/**", "/oauth2/**/**").permitAll()
+                .anyRequest().authenticated()
+
+               .and()
+               .oauth2Login()
+               .authorizationEndpoint()
+               .baseUri("/oauth2/authorization")
+               .authorizationRequestRepository(oAuth2AuthorizationRequestBasedOnCookieRepository())
+
+               .and()
+               .redirectionEndpoint()
+               .baseUri("/*/oauth2/code/*")
+
+               .and()
+               .userInfoEndpoint()
+               .userService(oAuth2UserService)
+
+               .and()
+               .successHandler(oAuth2AuthenticationSuccessHandler())
+               .failureHandler(oAuth2AuthenticationFailureHandler()).and().build();
+
+
 
 //                .apply(new JwtSecurityConfig(tokenProvider));
     }
